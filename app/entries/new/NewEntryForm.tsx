@@ -6,6 +6,7 @@ import Link from "next/link";
 import RichTextEditor, { getDefaultEditorContent } from "@/app/components/RichTextEditor";
 import TagInput from "@/app/components/TagInput";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
+import { ensureImageFileForUpload } from "@/lib/heic";
 
 const propertyRow: React.CSSProperties = {
   display: "flex",
@@ -42,9 +43,17 @@ export default function NewEntryForm({ existingTags }: { existingTags: string[] 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleImageSelect(file: File) {
-    setImageFile(file);
-    const url = URL.createObjectURL(file);
-    setImagePreview(url);
+    if (!file.type.startsWith("image/")) return;
+    ensureImageFileForUpload(file).then(
+      (toUse) => {
+        setImageFile(toUse);
+        setImagePreview((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return URL.createObjectURL(toUse);
+        });
+      },
+      () => setError("That image format couldn't be used. Try a JPEG or PNG.")
+    );
   }
 
   function removeImage() {

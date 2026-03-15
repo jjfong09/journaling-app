@@ -7,7 +7,14 @@ const SCRAPBOOK_BUCKET = "Journal App";
 function getSafeExtension(mimeType: string): string {
   if (mimeType === "image/png") return "png";
   if (mimeType === "image/webp") return "webp";
+  if (mimeType === "image/heic" || mimeType === "image/heif") return "jpg";
   return "jpg";
+}
+
+/** Content type to send to Supabase (bucket may reject image/heic). */
+function getStorageContentType(mimeType: string): string {
+  if (mimeType === "image/heic" || mimeType === "image/heif") return "image/jpeg";
+  return mimeType || "image/jpeg";
 }
 
 export async function POST(request: NextRequest) {
@@ -33,6 +40,14 @@ export async function POST(request: NextRequest) {
   if (!file || !(file instanceof File)) {
     return NextResponse.json(
       { error: "Missing or invalid 'image' file in form data" },
+      { status: 400 }
+    );
+  }
+  if (file.type === "image/heic" || file.type === "image/heif") {
+    return NextResponse.json(
+      {
+        error: "HEIC/HEIF photos from Apple devices aren't supported. Please use a JPEG or PNG, or use the web uploader to convert automatically.",
+      },
       { status: 400 }
     );
   }
@@ -83,7 +98,7 @@ export async function POST(request: NextRequest) {
   const { data: originalUpload } = await supabase.storage
     .from(SCRAPBOOK_BUCKET)
     .upload(originalPath, file, {
-      contentType: file.type || "image/jpeg",
+      contentType: getStorageContentType(file.type),
       upsert: false,
     });
 

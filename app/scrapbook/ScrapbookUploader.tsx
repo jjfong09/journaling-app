@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { ensureImageFileForUpload } from "@/lib/heic";
 
 type UploadState = {
   status: "idle" | "uploading" | "success" | "error";
@@ -70,7 +71,22 @@ export default function ScrapbookUploader() {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          onChange={async (e) => {
+            const raw = e.target.files?.[0];
+            if (!raw) {
+              setFile(null);
+              return;
+            }
+            try {
+              const toUse = await ensureImageFileForUpload(raw);
+              setFile(toUse);
+            } catch {
+              setState({
+                status: "error",
+                message: "That image format couldn't be used. Try a JPEG or PNG.",
+              });
+            }
+          }}
           required
         />
       </label>
