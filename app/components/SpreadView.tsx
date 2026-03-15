@@ -63,7 +63,7 @@ function CardHeader({
         </h2>
         <p
           style={{
-            fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
+            fontFamily: "var(--font-mono), 'Fragment Mono', monospace",
             fontWeight: 500,
             fontSize: 10,
             color: "#634313",

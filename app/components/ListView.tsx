@@ -46,7 +46,7 @@ export default function ListView({ items }: { items: JournalItem[] }) {
       <div style={{ padding: "36px var(--px) 28px" }}>
         <p
           style={{
-            fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
+            fontFamily: "var(--font-mono), 'Fragment Mono', monospace",
             fontSize: 14,
             color: "#3d3d3a",
             letterSpacing: "-0.05em",
@@ -81,7 +81,7 @@ export default function ListView({ items }: { items: JournalItem[] }) {
       >
         <p
           style={{
-            fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
+            fontFamily: "var(--font-mono), 'Fragment Mono', monospace",
             fontSize: 16,
             color: "#3d3d3a",
             letterSpacing: "-0.8px",
@@ -189,7 +189,7 @@ function ListCard({ item }: { item: JournalItem }) {
       {/* Bottom: date */}
       <p
         style={{
-          fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
+          fontFamily: "var(--font-mono), 'Fragment Mono', monospace",
           fontWeight: 500,
           fontSize: 12,
           color: textColor,

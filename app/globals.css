@@ -49,7 +49,7 @@ button {
 }
 
 .font-mono {
-  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-family: var(--font-mono), "Fragment Mono", monospace;
 }
 
 /* ─── Responsive entry card grid ─────────────────────────── */

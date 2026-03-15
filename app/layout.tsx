@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Averia_Serif_Libre, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Averia_Serif_Libre, Inter, Fragment_Mono } from "next/font/google";
 import "./globals.css";
 import PageTransition from "./PageTransition";
 
@@ -16,9 +16,9 @@ const inter = Inter({
   display: "swap",
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const fragmentMono = Fragment_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${averiaSerif.variable} ${inter.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`${averiaSerif.variable} ${inter.variable} ${fragmentMono.variable}`}>
       <body>
         <PageTransition>{children}</PageTransition>
       </body>
