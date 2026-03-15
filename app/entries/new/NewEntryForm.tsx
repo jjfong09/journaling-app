@@ -325,7 +325,7 @@ export default function NewEntryForm({ existingTags }: { existingTags: string[] 
           }}
         >
           {saving
-            ? (imageFile ? "Removing background…" : "Saving…")
+            ? "Saving…"
             : (imageFile ? "Save spread" : "Save entry")}
         </button>
         <Link

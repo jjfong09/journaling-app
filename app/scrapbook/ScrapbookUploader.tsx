@@ -27,7 +27,7 @@ export default function ScrapbookUploader() {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("entryDate", entryDate);
-    setState({ status: "uploading", message: "Removing background..." });
+    setState({ status: "uploading", message: "Saving..." });
 
     try {
       const res = await fetch("/api/remove-bg", {

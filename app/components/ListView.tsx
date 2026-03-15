@@ -22,10 +22,12 @@ function CameraIcon({ color }: { color: string }) {
   );
 }
 
-function PenIcon({ color }: { color: string }) {
+function DocumentIcon({ color }: { color: string }) {
   return (
     <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-      <path d="M12 2.5L14.5 5L6 13.5H3.5V11L12 2.5z" stroke={color} strokeWidth="1.35" strokeLinejoin="round" />
+      <path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke={color} strokeWidth="1.35" strokeLinejoin="round" />
+      <path d="M10 2v4h4" stroke={color} strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 8h7M5 10.5h7" stroke={color} strokeWidth="1.35" strokeLinecap="round" />
     </svg>
   );
 }
@@ -147,7 +149,7 @@ function ListCard({ item }: { item: JournalItem }) {
         {isPhoto ? (
           <CameraIcon color={textColor} />
         ) : (
-          <PenIcon color={textColor} />
+          <DocumentIcon color={textColor} />
         )}
       </div>
 
