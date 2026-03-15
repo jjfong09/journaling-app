@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
+const easeOutQuad = [0.25, 0.46, 0.45, 0.94] as const;
+
 const routeVariants = {
   initial: {
     opacity: 0,
@@ -12,12 +14,12 @@ const routeVariants = {
   animate: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.25, ease: easeOutQuad },
   },
   exit: {
     opacity: 0,
     y: -6,
-    transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.2, ease: easeOutQuad },
   },
 };
 
