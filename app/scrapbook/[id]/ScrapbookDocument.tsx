@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import RichTextEditor, { getDefaultEditorContent } from "@/app/components/RichTextEditor";
 import TagInput from "@/app/components/TagInput";
 import DeleteModal from "@/app/components/DeleteModal";
+import ImageLightbox from "@/app/components/ImageLightbox";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 type ScrapbookData = {
@@ -137,6 +138,7 @@ export default function ScrapbookDocument({
   const [tags, setTags] = useState<string[]>(item.tags || []);
   const [transcription, setTranscription] = useState(item.transcription || getDefaultEditorContent());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showImageLightbox, setShowImageLightbox] = useState(false);
   const transcriptionRef = useRef<string | null>(null);
 
   const getLatestTranscription = useCallback(() => transcriptionRef.current ?? transcription, [transcription]);
@@ -173,7 +175,7 @@ export default function ScrapbookDocument({
           onClick={async (e) => {
             e.preventDefault();
             await flushSave();
-            router.back();
+            router.push("/");
           }}
           style={{
             fontFamily: "var(--font-sans), Inter, sans-serif",
@@ -197,13 +199,56 @@ export default function ScrapbookDocument({
         }}
       >
         {/* Processed image */}
-        <div style={{ marginBottom: 28, background: "#f5f0e8", borderRadius: 8, overflow: "hidden" }}>
+        <div
+          style={{
+            marginBottom: 28,
+            background: "#f5f0e8",
+            borderRadius: 8,
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
           <img
             src={item.processed_url}
             alt="Journal spread"
             style={{ width: "100%", maxHeight: 380, objectFit: "contain", display: "block" }}
           />
+          <button
+            type="button"
+            onClick={() => setShowImageLightbox(true)}
+            aria-label="View full size"
+            className="btn-hover"
+            style={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.9)",
+              border: "1px solid #e6e4dc",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#634313",
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+              <path d="M11 8v6M8 11h6" />
+            </svg>
+          </button>
         </div>
+        {showImageLightbox && (
+          <ImageLightbox
+            src={item.processed_url}
+            alt="Journal spread"
+            onClose={() => setShowImageLightbox(false)}
+          />
+        )}
 
         {/* Editable title */}
         <input

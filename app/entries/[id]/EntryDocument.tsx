@@ -195,7 +195,7 @@ export default function EntryDocument({
           onClick={async (e) => {
             e.preventDefault();
             await flushSave();
-            router.back();
+            router.push("/");
           }}
           style={{
             fontFamily: "var(--font-sans), Inter, sans-serif",

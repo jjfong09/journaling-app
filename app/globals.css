@@ -84,9 +84,16 @@ button {
   /* Equal peek on both sides — scroll-snap-align: center handles the rest */
   padding-left: 50px;
   padding-right: 50px;
+  /* Room for card hover translateY so top border doesn't clip */
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .spread-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.thumb-strip-scroll::-webkit-scrollbar {
   display: none;
 }
 
@@ -113,6 +120,18 @@ button {
 .spread-card-fill > * {
   height: 100%;
   min-height: 0;
+}
+
+/* Mobile: spread cards use more horizontal space but still show a bit of adjacent cards */
+@media (max-width: 739px) {
+  .spread-scroll {
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 10px;
+  }
+  .spread-card {
+    flex: 0 0 calc(100% - 64px);
+  }
 }
 
 /* Rich text editor */

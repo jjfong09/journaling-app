@@ -43,10 +43,15 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  if (file.type === "image/heic" || file.type === "image/heif") {
+  const isHeic =
+    file.type === "image/heic" ||
+    file.type === "image/heif" ||
+    /\.(heic|heif|heics|heifs)$/i.test(file.name);
+  if (isHeic) {
     return NextResponse.json(
       {
-        error: "HEIC/HEIF photos from Apple devices aren't supported. Please use a JPEG or PNG, or use the web uploader to convert automatically.",
+        error:
+          "This photo format isn't supported. On your iPhone go to Settings > Camera > Formats and choose “Most Compatible” to save new photos as JPEG, or pick an existing JPEG/PNG image.",
       },
       { status: 400 }
     );

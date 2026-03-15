@@ -152,7 +152,7 @@ function ListCard({ item }: { item: JournalItem }) {
       </div>
 
       {/* Top: title + badge */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingRight: 28 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingRight: 28, minWidth: 0 }}>
         <h2
           style={{
             fontFamily: "var(--font-serif), 'Averia Serif Libre', Georgia, serif",
@@ -161,6 +161,12 @@ function ListCard({ item }: { item: JournalItem }) {
             color: textColor,
             letterSpacing: "-0.05em",
             lineHeight: 1.04,
+            maxWidth: 220,
+            minWidth: 0,
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 2,
+            overflow: "hidden",
           }}
         >
           {title}

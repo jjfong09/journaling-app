@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { JournalItem } from "@/lib/types";
+import ImageLightbox from "@/app/components/ImageLightbox";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
@@ -16,6 +17,11 @@ function getMonthAbbr(dateStr: string) {
   return new Date(dateStr + "T12:00:00")
     .toLocaleString("en-US", { month: "short" })
     .toUpperCase();
+}
+
+function entryBodySnippet(html: string, maxLen: number = 20): string {
+  const text = (html || "").replace(/<[^>]+>/g, "").trim().replace(/\s+/g, " ");
+  return text.slice(0, maxLen) + (text.length > maxLen ? "…" : "");
 }
 
 function ExpandIcon() {
@@ -46,9 +52,10 @@ function CardHeader({
         flexDirection: "column",
         gap: 10,
         paddingRight: 30,
+        minWidth: 0,
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2.5, minWidth: 0 }}>
         <h2
           style={{
             fontFamily: "var(--font-serif), 'Averia Serif Libre', Georgia, serif",
@@ -57,6 +64,12 @@ function CardHeader({
             color: "#634313",
             letterSpacing: "-1px",
             lineHeight: 1.04,
+            maxWidth: 200,
+            minWidth: 0,
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 2,
+            overflow: "hidden",
           }}
         >
           {title}
@@ -105,6 +118,7 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
     items.map((_, i) => (i === 0 ? 1 : SCALE_MIN))
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const ticking = useRef(false);
 
   const getCardWidth = useCallback(() => {
@@ -135,6 +149,12 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
   useEffect(() => {
     computeScales();
   }, [computeScales]);
+
+  // Center the active thumbnail in the bottom strip
+  useEffect(() => {
+    const el = thumbRefs.current[activeIndex];
+    if (el) el.scrollIntoView({ inline: "center", behavior: "smooth", block: "nearest" });
+  }, [activeIndex]);
 
   const onScroll = useCallback(() => {
     if (ticking.current) return;
@@ -216,7 +236,7 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "12px var(--px) 16px",
+          padding: "28px var(--px) 20px",
           flexShrink: 0,
         }}
       >
@@ -235,7 +255,7 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
         </span>
       </div>
 
-      {/* Carousel — fills remaining height, arrows centered vertically */}
+      {/* Carousel — fills remaining height */}
       <div
         style={{
           flex: 1,
@@ -243,40 +263,8 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
           overflowX: "hidden",
           overflowY: "visible",
           display: "flex",
-          position: "relative",
         }}
       >
-        <button
-          type="button"
-          onClick={() => scrollToIndex(activeIndex - 1)}
-          disabled={!hasPrev}
-          aria-label="Previous entry"
-          className="btn-hover"
-          style={{
-            position: "absolute",
-            left: 12,
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 5,
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(255,255,255,0.9)",
-            border: "1px solid #e6e4dc",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            opacity: hasPrev ? 1 : 0.25,
-            pointerEvents: hasPrev ? "auto" : "none",
-            cursor: "pointer",
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#634313" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-
         <div
           ref={scrollRef}
           className="spread-scroll spread-scroll-fill"
@@ -302,7 +290,165 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
             </div>
           ))}
         </div>
+      </div>
 
+      {/* Thumbnail strip with prev/next arrows */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 12,
+          padding: "16px var(--px) max(40px, calc(env(safe-area-inset-bottom) + 16px))",
+          background: "var(--bg)",
+          flexShrink: 0,
+          overflow: "hidden",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => scrollToIndex(activeIndex - 1)}
+          disabled={!hasPrev}
+          aria-label="Previous entry"
+          className="btn-hover"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(255,255,255,0.9)",
+            border: "1px solid #e6e4dc",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            opacity: hasPrev ? 1 : 0.25,
+            pointerEvents: hasPrev ? "auto" : "none",
+            cursor: "pointer",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#634313" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <div
+          style={{
+            position: "relative",
+            flex: 1,
+            minWidth: 0,
+            overflow: "hidden",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              gap: 8,
+              padding: "0 20px",
+              overflowX: "auto",
+              scrollBehavior: "smooth",
+              scrollbarWidth: "none",
+            }}
+            className="thumb-strip-scroll"
+          >
+            {items.map((item, i) => (
+              <button
+                key={i}
+                ref={(el) => {
+                  (thumbRefs.current as (HTMLButtonElement | null)[])[i] = el;
+                }}
+                onClick={() => scrollToIndex(i)}
+                className="thumb-hover"
+                style={{
+                  width: thumbWidth(i),
+                  height: thumbHeight(i),
+                  borderRadius: 6,
+                  background: "#d9d9d9",
+                  flexShrink: 0,
+                  border: "none",
+                  padding: 0,
+                  overflow: "hidden",
+                }}
+              >
+                {item.type === "scrapbook" ? (
+                  <img
+                    src={item.processed_url}
+                    alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      background: "#ffffff",
+                      border: "1.5px solid #e6e4dc",
+                      borderRadius: 6,
+                      padding: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                      justifyContent: "center",
+                      overflow: "hidden",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: "var(--font-serif), 'Averia Serif Libre', Georgia, serif",
+                        fontSize: 8,
+                        fontWeight: 400,
+                        color: "#634313",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.title?.trim() || "Untitled"}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "var(--font-sans), Inter, sans-serif",
+                        fontSize: 7,
+                        color: "#8a7d6e",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {entryBodySnippet(item.body)}
+                    </div>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+          {/* Edge fades */}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 28,
+              background: "linear-gradient(to right, var(--bg) 0%, transparent 100%)",
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 28,
+              background: "linear-gradient(to left, var(--bg) 0%, transparent 100%)",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
         <button
           type="button"
           onClick={() => scrollToIndex(activeIndex + 1)}
@@ -310,11 +456,6 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
           aria-label="Next entry"
           className="btn-hover"
           style={{
-            position: "absolute",
-            right: 12,
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 5,
             width: 40,
             height: 40,
             borderRadius: "50%",
@@ -327,52 +468,13 @@ export default function SpreadView({ items }: { items: JournalItem[] }) {
             opacity: hasNext ? 1 : 0.25,
             pointerEvents: hasNext ? "auto" : "none",
             cursor: "pointer",
+            flexShrink: 0,
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#634313" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 18l6-6-6-6" />
           </svg>
         </button>
-      </div>
-
-      {/* Thumbnail strip — in flow, always visible above nothing */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "center",
-          gap: 8,
-          padding: "16px var(--px) max(24px, env(safe-area-inset-bottom))",
-          background: "var(--bg)",
-          flexShrink: 0,
-          overflow: "hidden",
-        }}
-      >
-        {items.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => scrollToIndex(i)}
-            className="thumb-hover"
-            style={{
-              width: thumbWidth(i),
-              height: thumbHeight(i),
-              borderRadius: 6,
-              background: "#d9d9d9",
-              flexShrink: 0,
-              border: "none",
-              padding: 0,
-              overflow: "hidden",
-            }}
-          >
-            {item.type === "scrapbook" && (
-              <img
-                src={item.processed_url}
-                alt=""
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            )}
-          </button>
-        ))}
       </div>
     </div>
   );
@@ -440,8 +542,19 @@ function TextSpreadCard({ item }: { item: Extract<JournalItem, { type: "entry" }
   );
 }
 
+function MagnifyIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+      <path d="M11 8v6M8 11h6" />
+    </svg>
+  );
+}
+
 /* ─── Scrapbook spread card (37:340) ─────────────────────── */
 function ScrapbookSpreadCard({ item }: { item: Extract<JournalItem, { type: "scrapbook" }> }) {
+  const [showLightbox, setShowLightbox] = useState(false);
   return (
     <div
       style={{
@@ -464,6 +577,7 @@ function ScrapbookSpreadCard({ item }: { item: Extract<JournalItem, { type: "scr
           alignItems: "center",
           justifyContent: "center",
           background: "var(--bg)",
+          position: "relative",
         }}
       >
         <img
@@ -478,7 +592,38 @@ function ScrapbookSpreadCard({ item }: { item: Extract<JournalItem, { type: "scr
             display: "block",
           }}
         />
+        <button
+          type="button"
+          onClick={() => setShowLightbox(true)}
+          aria-label="View full size"
+          className="btn-hover"
+          style={{
+            position: "absolute",
+            bottom: 12,
+            right: 12,
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.9)",
+            border: "1px solid #e6e4dc",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "#634313",
+          }}
+        >
+          <MagnifyIcon />
+        </button>
       </div>
+      {showLightbox && (
+        <ImageLightbox
+          src={item.processed_url}
+          alt="Journal spread"
+          onClose={() => setShowLightbox(false)}
+        />
+      )}
 
       {/* Compact card: same header format and border as text entry cards */}
       <div
