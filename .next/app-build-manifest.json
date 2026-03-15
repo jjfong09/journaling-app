@@ -11,15 +11,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/entries/new/page": [
+    "/entries/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/entries/new/page.js"
-    ],
-    "/entries/new/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/entries/new/loading.js"
+      "static/chunks/app/entries/[id]/page.js"
     ]
   }
 }

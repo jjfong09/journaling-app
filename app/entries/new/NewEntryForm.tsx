@@ -95,7 +95,9 @@ export default function NewEntryForm({ existingTags }: { existingTags: string[] 
     // Text entry
     const supabase = getSupabaseBrowser();
     if (!supabase) {
-      setError("Not connected. Check your environment.");
+      setError(
+        "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file."
+      );
       setSaving(false);
       return;
     }
